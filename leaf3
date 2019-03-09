@@ -8,7 +8,7 @@ spanning-tree mode mstp
 !
 no aaa root
 !
-vlan 10,20,300,3000
+vlan 10,20,3000
 !
 vrf definition MGMT
 !
