@@ -45,6 +45,10 @@ interface Ethernet7
 interface Loopback0
    ip address 192.168.1.2/32
 !
+interface Management0
+   vrf forwarding MGMT
+   ip address dhcp
+ !
 interface Management1
    vrf forwarding MGMT
    ip address dhcp
