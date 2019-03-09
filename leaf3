@@ -1,0 +1,104 @@
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname leaf3
+!
+spanning-tree mode mstp
+!
+no aaa root
+!
+vlan 10,20,300,3000
+!
+vrf definition MGMT
+!
+interface Ethernet1
+   mtu 9214
+   no switchport
+   ip address 10.1.3.2/24
+!
+interface Ethernet2
+   mtu 9214
+   no switchport
+   ip address 10.2.3.2/24
+!
+interface Ethernet3
+   mtu 9214
+   no switchport
+   ip address 10.3.3.2/24
+!
+interface Ethernet4
+   mtu 9214
+   switchport access vlan 3000
+   switchport mode dot1q-tunnel
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Loopback0
+   ip address 172.16.1.3/32
+!
+interface Management1
+   vrf forwarding MGMT
+   ip address dhcp
+!
+interface Vlan10
+!
+interface Vlan20
+!
+interface Vlan3000
+!
+interface Vxlan1
+   vxlan source-interface Loopback0
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10
+   vxlan vlan 20 vni 20
+   vxlan vlan 3000 vni 3000
+!
+ip route vrf MGMT 0.0.0.0/0 172.31.33.1
+!
+ip routing
+no ip routing vrf MGMT
+!
+management api http-commands
+   protocol http
+   no shutdown
+   !
+   vrf MGMT
+      no shutdown
+!
+router bgp 65103
+   maximum-paths 8 ecmp 8
+   neighbor 10.1.3.1 remote-as 65001
+   neighbor 10.1.3.1 soft-reconfiguration inbound all
+   neighbor 10.1.3.1 send-community extended
+   neighbor 10.1.3.1 maximum-routes 12000 
+   neighbor 10.2.3.1 remote-as 65002
+   neighbor 10.2.3.1 soft-reconfiguration inbound all
+   neighbor 10.2.3.1 send-community extended
+   neighbor 10.2.3.1 maximum-routes 12000 
+   neighbor 10.3.3.1 remote-as 65003
+   neighbor 10.3.3.1 soft-reconfiguration inbound all
+   neighbor 10.3.3.1 send-community extended
+   neighbor 10.3.3.1 maximum-routes 12000 
+   redistribute connected
+   !
+   vlan 10
+      rd 172.16.1.3:10
+      route-target both 10:10
+      redistribute learned
+   !
+   vlan 3000
+      rd 172.16.1.3:3000
+      route-target both 3000:3000
+      redistribute learned
+   !
+   address-family evpn
+      neighbor 10.1.3.1 activate
+      neighbor 10.2.3.1 activate
+      neighbor 10.3.3.1 activate
+!
+end
